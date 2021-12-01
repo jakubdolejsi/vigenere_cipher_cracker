@@ -232,7 +232,7 @@ class KasiskiExamination:
         self.decrypted_message = decrypted_message
 
     def print_results(self):
-        print('************************************************')
+        print('\n\n************************************************')
         print('         DECRYPTED MESSAGE BELOW')
         print('************************************************')
         print(self.decrypted_message)

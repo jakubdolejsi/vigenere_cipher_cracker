@@ -4,8 +4,7 @@
 ## Theory
 The main idea behind cracking Vigenere cipher came from process called <b>Kasiski examination</b>.
 This method was discovered by Friedrich Kasiski in 1863 and  is used to attack 
-ciphers with polyalphabetic substitutions.
-The entire method can be divided into five steps, which are listed below.
+ciphers with polyalphabetic substitutions. The entire method can be divided into five steps, which are listed below.
 
 <ol>
 
@@ -35,6 +34,8 @@ second most frequent factors. If it fails again, try for the third common factor
 </li>
 </ol>
 
+The algorithm is based on the book [Cracking Code With Python] [1].
+
 ## Project description
 The project consists of two scripts. One script is used to encrypt the message using Vigenere Cipher and
 save it to the file. The second script is used to decrypt the text inside that file using Kasiski's
@@ -50,8 +51,6 @@ script reads the content from <i>encrypted.txt</i> file, tries to decrypt it and
 ## How to run
 The script is written only in Python 3.8. There is no need to install other dependencies except Python. 
 
-The following code example shows the script usage.
-
 ```
 usage: python vc_cracker.py [-h] [-k KEY] [-l LETTERS] [-f FILE] [-s]
 
@@ -66,3 +65,51 @@ optional arguments:
   -s, --suppress        run in silent mode, suppress stdout
 ```
 
+
+### Example run
+
+The following code show example of running this script. The parameter <i>key</i> is set to 20, so it will assume that
+the key is no longer than 20 characters. The parameter <i>letters</i> is set to 5, so on each character position in key,
+the algorithm will try to test only five most frequent letters. The last parameter <i>file</i> is not set, so it is
+used the default file, which is <i>encrypted.txt</i>.
+
+```
+python vc_cracker.py --key 20 --letters 5
+```
+
+### Example output
+
+After running the command above, the output should be something like this.
+
+
+```
+************************************************
+Initializing Kasiski Examination
+Max key length: 20
+Letter per subkey: 5
+************************************************
+
+
+The most likely key lengths are: 5 2 10 3 15 4 13 9 6 12 11 7 8 16
+Attempting with key length 5, which gives 1024 total combinations
+Possible letters for letter 1 of the key: AEGL
+Possible letters for letter 2 of the key: REXC
+Possible letters for letter 3 of the key: ETDI
+Possible letters for letter 4 of the key: AEGO
+Possible letters for letter 5 of the key: ALOE
+Attempting with key: AREAA
+Possible encryption with key AREAA:
+
+
+************************************************
+         DECRYPTED MESSAGE BELOW
+************************************************
+Here will be decrypted message
+************************************************
+```
+
+
+
+## References
+
+[1]: https://ihatefeds.com/No.Starch.Cracking.Codes.With.Python.2018.pdf "Cracking Codes With Python"
