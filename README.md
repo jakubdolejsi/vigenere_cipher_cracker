@@ -50,8 +50,10 @@ script reads the content from <i>encrypted.txt</i> file, tries to decrypt it and
 ## How to run
 The script is written only in Python 3.8. There is no need to install other dependencies except Python. 
 
+The following code example shows the script usage.
+
 ```
-usage: vc_cracker.py [-h] [-k KEY] [-l LETTERS] [-f FILE] [-s]
+usage: python vc_cracker.py [-h] [-k KEY] [-l LETTERS] [-f FILE] [-s]
 
 Python tool for cracking Vigenere Cipher
 
