@@ -38,12 +38,12 @@ The algorithm is based on the book [Cracking Code With Python] [1].
 
 ## Script description
 
-At first it is needed to cipher text with Vigenere Cihper. This can be done using online tool (e.g. https://cryptii.com/pipes/vigenere-cipher). 
+At first it is needed to cipher the text with Vigenere Cihper. This can be done using online tool (e.g. https://cryptii.com/pipes/vigenere-cipher). 
 The ciphered message is need to be saved into file called <i>encrypted.txt</i>.
 
 After the ciphered message has been created, the <i>vc_cracker.py</i> script can be used to crack the cipher. This
-script reads the content from <i>encrypted.txt</i> file, tries to decrypt it and the decrypted message saves to the 
-<i>decrypted.txt</i> file and print it to the standard output.
+script reads the content from <i>encrypted.txt</i> file and tries to decrypt it. If the decryption is successful, the
+decrypted message is printed to the standard output and the message is saved into file <i>decrypted.txt</i>.
 
 ## How to run
 The script is written only in Python 3.8. There is no need to install other dependencies except Python3 interpreter. 
