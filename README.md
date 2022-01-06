@@ -24,7 +24,7 @@ After grouping every Nth letter together, we have N groups of messages.
 </li>
 
 <li> <b>Frequecny analysis</b> - Having created these groups, we can now use frequency analysis
-to find out. The most frequent letters in the language for each group.
+to find out the most frequent letters in the language for each group.
 </li>
 
 <li> <b>Brute-force</b> - After obtaining the most frequent letters for each group
@@ -36,10 +36,7 @@ second most frequent factors. If it fails again, try for the third common factor
 
 The algorithm is based on the book [Cracking Code With Python] [1].
 
-## Project description
-The project consists of two scripts. One script is used to encrypt the message using Vigenere Cipher and
-save it to the file. The second script is used to decrypt the text inside that file using Kasiski's
-examination.
+## Script description
 
 At first it is needed to cipher text with Vigenere Cihper. This can be done using online tool (e.g. https://cryptii.com/pipes/vigenere-cipher). 
 The ciphered message is need to be saved into file called <i>encrypted.txt</i>.
@@ -49,10 +46,10 @@ script reads the content from <i>encrypted.txt</i> file, tries to decrypt it and
 <i>decrypted.txt</i> file and print it to the standard output.
 
 ## How to run
-The script is written only in Python 3.8. There is no need to install other dependencies except Python. 
+The script is written only in Python 3.8. There is no need to install other dependencies except Python3 interpreter. 
 
 ```
-usage: python vc_cracker.py [-h] [-k KEY] [-l LETTERS] [-f FILE] [-s]
+usage: python3 vc_cracker.py [-h] [-k KEY] [-l LETTERS] [-r SEQUENCES] [-f FILE] [-s]
 
 Python tool for cracking Vigenere Cipher
 
@@ -61,6 +58,8 @@ optional arguments:
   -k KEY, --key KEY     maximum key length
   -l LETTERS, --letters LETTERS
                         number of tested letters per key
+  -r SEQUENCES, --sequences SEQUENCES
+                        The length of repeated sequences
   -f FILE, --file FILE  the name of the file from which the content is read
   -s, --suppress        run in silent mode, suppress stdout
 ```
@@ -69,12 +68,13 @@ optional arguments:
 ### Example run
 
 The following code show example of running this script. The parameter <i>key</i> is set to 20, so it will assume that
-the key is no longer than 20 characters. The parameter <i>letters</i> is set to 5, so on each character position in key,
-the algorithm will try to test only five most frequent letters. The last parameter <i>file</i> is not set, so it is
-used the default file, which is <i>encrypted.txt</i>.
+the key is no longer than 20 characters. The parameter <i>letters</i> is set to 5, so at each character position 
+in the key, the algorithm will attempt to test only the five most common letters. The <i>sequences</i> parameter is set to 3, so it will 
+try to find repeating sequences with length of 3 (AAA, AAB, etc.). The last parameter <i>file</i> is not set, so it will
+be used the default file, which is <i>encrypted.txt</i>.
 
 ```
-python vc_cracker.py --key 20 --letters 5
+python vc_cracker.py --key 20 --letters 5 --sequences 3
 ```
 
 ### Example output
@@ -91,7 +91,10 @@ Letter per subkey: 5
 
 
 The most likely key lengths are: 5 2 10 3 15 4 13 9 6 12 11 7 8 16
-Attempting with key length 5, which gives 1024 total combinations
+
+--------------------- Attempt number 1 ---------------------
+
+Currently trying key length: 5 ( 1024 total key combinations)
 Possible letters for letter 1 of the key: AEGL
 Possible letters for letter 2 of the key: REXC
 Possible letters for letter 3 of the key: ETDI
@@ -105,7 +108,6 @@ Possible encryption with key AREAA:
          DECRYPTED MESSAGE BELOW
 ************************************************
 Here will be decrypted message
-************************************************
 ```
 
 

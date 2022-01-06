@@ -1,6 +1,7 @@
 import argparse
 import itertools
 import re
+from collections import Counter
 from vigenere_cipher import VigenereCipher, FrequencyAnalysis, Dictionary
 
 
@@ -8,16 +9,18 @@ class KasiskiExamination:
 
     def __init__(self,
                  encrypted_message: str,
-                 max_key_length: int,
-                 letter_per_subkey: int,
+                 max_key_length: str,
+                 letter_per_subkey: str,
+                 length_of_sequences: str,
                  alphabet: str,
                  suppress: bool
                  ):
         self.message = encrypted_message
         self.decrypted_message = None
         self._non_letter = re.compile('[^A-Z]')
-        self._max_key_length = max_key_length
-        self._letter_per_subkey = letter_per_subkey
+        self._max_key_length = int(max_key_length)
+        self._letter_per_subkey = int(letter_per_subkey)
+        self.length_of_sequences = int(length_of_sequences)
         self._alphabet = alphabet
         self._suppress = suppress
 
@@ -25,43 +28,30 @@ class KasiskiExamination:
         print('Initializing Kasiski Examination')
         print(f'Max key length: {self._max_key_length}')
         print(f'Letter per subkey: {self._letter_per_subkey}')
+        print(f'Length of repeating sequences: {self.length_of_sequences}')
         print('************************************************\n\n')
+
 
     def _flex_print(self, string: str) -> None:
         if not self._suppress:
             print(string)
 
     def _get_repeated_sequences(self, message: str) -> dict:
-        # Goes through the message and finds any 3 to 5 letter sequences
-        # that are repeated. Returns a dict with the keys of the sequence and
-        # values of a list of spacings (num of letters between the repeats).
-
-        # Use a regular expression to remove non-letters from the message:
         message = self._non_letter.sub('', message.upper())
 
-        # Compile a list of seqLen-letter sequences found in the message:
-        spacings = {}  # Keys are sequences, values are lists of int spacings.
-        for sequence_len in range(3, 6):
+        spacings = {}
+        for sequence_len in range(3, self.length_of_sequences + 3):
             for sequence_start in range(len(message) - sequence_len):
-                # Determine what the sequence is, and store it in seq:
                 seq = message[sequence_start:sequence_start + sequence_len]
 
-                # Look for this sequence in the rest of the message:
                 for i in range(sequence_start + sequence_len, len(message) - sequence_len):
                     if message[i:i + sequence_len] == seq:
-                        # Found a repeated sequence.
                         if seq not in spacings:
-                            spacings[seq] = []  # Initialize a blank list.
-
-                        # Append the spacing distance between the repeated
-                        # sequence and the original sequence:
+                            spacings[seq] = []
                         spacings[seq].append(i - sequence_start)
         return spacings
 
     def _get_factors(self, number: int) -> list:
-        """
-        Return factors of number that are in range <1; max_key_length +1>
-        """
         if number < 2:
             return []
 
@@ -79,67 +69,24 @@ class KasiskiExamination:
         return items[1]
 
     def _get_most_common_factors(self, sequence_factors: dict) -> list:
-        # First, get a count of how many times a factor occurs in seqFactors:
-        factors_count = {}  # Key is a factor, value is how often it occurs.
+        factors_by_each_sequence = list(sequence_factors.values())
+        all_factors = list(itertools.chain(*factors_by_each_sequence))
 
-        # seqFactors keys are sequences, values are lists of factors of the
-        # spacings. seqFactors has a value like: {'GFD': [2, 3, 4, 6, 9, 12,
-        # 18, 23, 36, 46, 69, 92, 138, 207], 'ALW': [2, 3, 4, 6, ...], ...}
-        for seq in sequence_factors:
-            factors = sequence_factors[seq]
-            for factor in factors:
-                if factor not in factors_count:
-                    factors_count[factor] = 0
-                factors_count[factor] += 1
-
-        # Second, put the factor and its count into a tuple, and make a list
-        # of these tuples so we can sort them:
-        factors_by_count = []
-        for factor in factors_count:
-            # Exclude factors larger than MAX_KEY_LENGTH:
-            if factor <= self._max_key_length:
-                # factorsByCount is a list of tuples: (factor, factorCount)
-                # factorsByCount has a value like: [(3, 497), (2, 487), ...]
-                factors_by_count.append((factor, factors_count[factor]))
-
-        # Sort the list by the factor count:
-        factors_by_count.sort(key=self._get_item_at_first_index, reverse=True)
-
-        return factors_by_count
+        counter = Counter(all_factors)
+        return [factor[0] for factor in counter.most_common(self._max_key_length)]
 
     def _kasiski_examination(self) -> list:
-        # Find out the sequences of 3 to 5 letters that occur multiple times
-        # in the ciphertext. repeatedSeqSpacings has a value like:
-        # {'EXG': [192], 'NAF': [339, 972, 633], ... }
         repeated_spacings = self._get_repeated_sequences(self.message)
 
-        # (See getMostCommonFactors() for a description of seqFactors.)
         sequence_factors = {}
         for seq in repeated_spacings:
             sequence_factors[seq] = []
             for spacing in repeated_spacings[seq]:
                 sequence_factors[seq].extend(self._get_factors(spacing))
 
-        # (See getMostCommonFactors() for a description of factorsByCount.)
-        factors_by_count = self._get_most_common_factors(sequence_factors)
-
-        # Now we extract the factor counts from factorsByCount and
-        # put them in allLikelyKeyLengths so that they are easier to
-        # use later:
-        probable_keys = []
-        for factor in factors_by_count:
-            probable_keys.append(factor[0])
-
-        return probable_keys
+        return self._get_most_common_factors(sequence_factors)
 
     def _get_nth_subkey_letter(self, nth: int, key_len: int, message: str) -> str:
-        # Returns every nth letter for each keyLength set of letters in text.
-        # E.g. getNthSubkeysLetters(1, 3, 'ABCABCABC') returns 'AAA'
-        #      getNthSubkeysLetters(2, 3, 'ABCABCABC') returns 'BBB'
-        #      getNthSubkeysLetters(3, 3, 'ABCABCABC') returns 'CCC'
-        #      getNthSubkeysLetters(1, 5, 'ABCDEFGHI') returns 'AF'
-
-        # Use a regular expression to remove non-letters from the message:
         message = self._non_letter.sub('', message)
 
         i = nth - 1
@@ -149,48 +96,35 @@ class KasiskiExamination:
             i += key_len
         return ''.join(letters)
 
-    def _try_hack_by_key(self, most_likely_keys: int) -> str or None:
+    def _try_hack_by_key(self, most_likely_key: int) -> str or None:
         vigenere_cipher = VigenereCipher(self._alphabet)
-        freqAnalysis = FrequencyAnalysis(self._alphabet)
+        frequency_analysis = FrequencyAnalysis(self._alphabet)
         dictionary = Dictionary(self._alphabet)
 
-        # Determine the most likely letters for each letter in the key:
         upper_case_message = self.message.upper()
-        # allFreqScores is a list of mostLikelyKeyLength number of lists.
-        # These inner lists are the freqScores lists.
         overall_scores = []
-        for nth in range(1, most_likely_keys + 1):
-            nthLetters = self._get_nth_subkey_letter(nth, most_likely_keys, upper_case_message)
+        for nth in range(1, most_likely_key + 1):
+            nth_letters = self._get_nth_subkey_letter(nth, most_likely_key, upper_case_message)
 
-            # freqScores is a list of tuples like:
-            # [(<letter>, <Eng. Freq. match score>), ... ]
-            # List is sorted by match score. Higher score means better match.
-            # See the englishFreqMatchScore() comments in freqAnalysis.py.
             inner_scores = []
             for possible_key in self._alphabet:
-                decrypted_message = vigenere_cipher.decrypt_message(nthLetters, possible_key)
-                current_score = (possible_key, freqAnalysis.get_score(decrypted_message))
+                decrypted_message = vigenere_cipher.decrypt_message(nth_letters, possible_key)
+                current_score = (possible_key, frequency_analysis.get_score(decrypted_message))
                 inner_scores.append(current_score)
-            # Sort by match score:
             inner_scores.sort(key=self._get_item_at_first_index, reverse=True)
 
             overall_scores.append(inner_scores[:self._letter_per_subkey])
 
         if not self._suppress:
             for index, score in enumerate(overall_scores):
-                # for i in range(len(overall_scores)):
-                # Use i + 1 so the first letter is not called the "0th" letter:
                 print(f'Possible letters for letter {(index + 1)} of the key: ', end='')
-                for freqScore in score:
-                    print(f'{freqScore[0]}', end='')
-                print()  # Print a newline.
+                for freq_score in score:
+                    print(f'{freq_score[0]}', end='')
+                print("")
 
-        # Try every combination of the most likely letters for each position
-        # in the key:
-        for indexes in itertools.product(range(self._letter_per_subkey), repeat=most_likely_keys):
-            # Create a possible key from the letters in allFreqScores:
+        for indexes in itertools.product(range(self._letter_per_subkey), repeat=most_likely_key):
             possible_keys = []
-            for i in range(most_likely_keys):
+            for i in range(most_likely_key):
                 possible_keys.append(overall_scores[i][indexes[i]][0])
             possible_key = ''.join(possible_keys)
 
@@ -208,7 +142,7 @@ class KasiskiExamination:
 
                 decrypted_message = ''.join(decrypted_letters)
 
-                self._flex_print(f'Possible encryption hack with key {possible_key}:')
+                self._flex_print(f'Possible encryption with key: {possible_key}')
                 return decrypted_message
 
         return None
@@ -216,36 +150,43 @@ class KasiskiExamination:
     def run(self):
 
         likely_keys = self._kasiski_examination()
-        if not self._suppress:
-            self._flex_print(f"Kasiski Examination results say the most likely key "
-                             f"lengths are: {' '.join(list(map(str, likely_keys)))}")
+        self._flex_print(f"\nThe most likely key lengths are: {' '.join(list(map(str, likely_keys)))}")
+
         decrypted_message = None
-        for keyLength in likely_keys:
-            self._flex_print(f'Attempting hack with key length %s (%s possible keys)... '
-                             f'{keyLength, self._letter_per_subkey ** keyLength}')
-            decrypted_message = self._try_hack_by_key(keyLength)
+        for attempt, most_likely_key in enumerate(likely_keys):
+
+            self._flex_print(f'\n--------------------- Attempt number {attempt + 1} ---------------------')
+            self._flex_print(f'\nCurrently trying key length: {most_likely_key} '
+                             f'({self._letter_per_subkey ** most_likely_key} '
+                             f'possible key combinations)')
+            decrypted_message = self._try_hack_by_key(most_likely_key)
             if decrypted_message is not None:
                 break
 
         if decrypted_message is None:
-            self._flex_print('Unable to hack message with likely key length(s). Brute forcing key length...')
+            self._flex_print('Unable to hack message with likely key length.')
         self.decrypted_message = decrypted_message
 
     def print_results(self):
         print('\n\n************************************************')
         print('         DECRYPTED MESSAGE BELOW')
         print('************************************************')
-        print(self.decrypted_message)
-        print('************************************************')
+        if self.decrypted_message:
+            print(self.decrypted_message)
+        else:
+            print('Message cannot be decrypted')
+            print('Halting...')
         return self
 
     def save_to_file(self, output_file='decrypted.txt'):
+        if not self.decrypted_message:
+            return
         try:
             with open(output_file, 'w+') as file:
                 file.write(self.decrypted_message)
         except Exception as e:
             print(f'Cannot write decrypted message to file: {output_file}')
-            print(f'Following exception has occured: {e}')
+            print(f'Following exception has occurred: {e}')
 
 
 def parse_args():
@@ -254,6 +195,8 @@ def parse_args():
                         help="maximum key length", )
     parser.add_argument("-l", "--letters", action="store", dest="letters", default=4,
                         help="number of tested letters per key")
+    parser.add_argument("-r", "--sequences", action="store", dest="sequences", default=3,
+                        help="The length of repeated sequences")
     parser.add_argument("-f", "--file", action="store", dest="file", default="encrypted.txt",
                         help="the name of the file from which the content is read")
     parser.add_argument("-s", "--suppress", dest="suppress", action="store_true", default=False,
@@ -271,6 +214,7 @@ def main():
             encrypted_message=file.read(),
             max_key_length=args.key,
             letter_per_subkey=args.letters,
+            length_of_sequences=args.sequences,
             alphabet=alphabet,
             suppress=args.suppress,
         )

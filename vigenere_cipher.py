@@ -7,40 +7,40 @@ class Dictionary:
         self.letters_and_space = alphabet + alphabet.lower() + ' \t\n'
         if lang == 'english':
             self.lang = lang
-            dictionaryFile = open('dictionary.txt')
-            englishWords = {}
-            for word in dictionaryFile.read().split('\n'):
-                englishWords[word] = None
-            dictionaryFile.close()
-            self.words = englishWords
+            dictionary = open('dictionary.txt')
+            words = {}
+            for word in dictionary.read().split('\n'):
+                words[word] = None
+            dictionary.close()
+            self.words = words
 
     def get_count(self, message):
         message = message.upper()
         message = self.remove_non_letters(message)
-        possibleWords = message.split()
+        possible_words = message.split()
 
-        if not possibleWords:
-            return 0.0  # No words at all, so return 0.0.
+        if not possible_words:
+            return 0.0
 
         matches = 0
-        for word in possibleWords:
+        for word in possible_words:
             if word in self.words:
                 matches += 1
-        return float(matches) / len(possibleWords)
+        return float(matches) / len(possible_words)
 
     def remove_non_letters(self, message):
-        lettersOnly = []
+        letters = []
         for symbol in message:
             if symbol in self.letters_and_space:
-                lettersOnly.append(symbol)
-        return ''.join(lettersOnly)
+                letters.append(symbol)
+        return ''.join(letters)
 
     def is_valid_language(self, message, word_percentage=20, letter_percentage=85):
-        wordsMatch = self.get_count(message) * 100 >= word_percentage
-        numLetters = len(self.remove_non_letters(message))
-        messageLettersPercentage = float(numLetters) / len(message) * 100
-        lettersMatch = messageLettersPercentage >= letter_percentage
-        return wordsMatch and lettersMatch
+        words = self.get_count(message) * 100 >= word_percentage
+        number_of_letters = len(self.remove_non_letters(message))
+        messag_percentage = float(number_of_letters) / len(message) * 100
+        letters_match = messag_percentage >= letter_percentage
+        return words and letters_match
 
 
 class FrequencyAnalysis:
@@ -137,9 +137,6 @@ class VigenereCipher:
         return ''.join(translated)
 
     def decrypt_message(self, message, key):
-        # print('Decrypting has started...')
-        # print(f'Message: {message}')
-        # print(f'Used key: {key}')
         translated = []
         keyIndex = 0
         key = key.upper()
