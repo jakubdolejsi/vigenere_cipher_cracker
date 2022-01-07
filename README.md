@@ -67,14 +67,16 @@ optional arguments:
 
 ### Example run
 
-The following code show example of running this script. The parameter <i>key</i> is set to 20, so it will assume that
-the key is no longer than 20 characters. The parameter <i>letters</i> is set to 5, so at each character position 
-in the key, the algorithm will attempt to test only the five most common letters. The <i>sequences</i> parameter is set to 3, so it will 
-try to find repeating sequences with length of 3 (AAA, AAB, etc.). The last parameter <i>file</i> is not set, so it will
-be used the default file, which is <i>encrypted.txt</i>.
+The following code shows an example of running this script. The parameter <i>key</i> is set to 20, so the key is 
+assumed to be no longer than 20 characters. The <i>letters</i> parameter is set to 5, so that at each character position 
+in the key, the algorithm attempts to find only the five most common letters. The parameter <i>sequences</i> is set to 3, 
+so it will try to find repeating sequences of length 3 (AAA, AAB, etc.). The last parameter <i>file</i> is not set, so
+the default file will be used, which is <i>encrypted.txt</i>.
+
+Translated with www.DeepL.com/Translator (free version)
 
 ```
-python vc_cracker.py --key 20 --letters 5 --sequences 3
+python3 vc_cracker.py --key 20 --letters 5 --sequences 3
 ```
 
 ### Example output
