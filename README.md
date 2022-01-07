@@ -73,8 +73,6 @@ in the key, the algorithm attempts to find only the five most common letters. Th
 so it will try to find repeating sequences of length 3 (AAA, AAB, etc.). The last parameter <i>file</i> is not set, so
 the default file will be used, which is <i>encrypted.txt</i>.
 
-Translated with www.DeepL.com/Translator (free version)
-
 ```
 python3 vc_cracker.py --key 20 --letters 5 --sequences 3
 ```
@@ -89,6 +87,7 @@ After running the command above, the output should be something like this.
 Initializing Kasiski Examination
 Max key length: 20
 Letter per subkey: 5
+Length of repeating sequences: 3
 ************************************************
 
 
