@@ -34,7 +34,7 @@ second most frequent factors. If it fails again, try for the third common factor
 </li>
 </ol>
 
-The algorithm is based on the book [Cracking Code With Python] [1].
+The algorithm and code is based on the book [Cracking Code With Python] [1].
 
 ## Script description
 
