@@ -196,7 +196,7 @@ def parse_args():
     parser.add_argument("-l", "--letters", action="store", dest="letters", default=4,
                         help="number of tested letters per key")
     parser.add_argument("-r", "--sequences", action="store", dest="sequences", default=3,
-                        help="The length of repeated sequences")
+                        help="the length of repeated sequences")
     parser.add_argument("-f", "--file", action="store", dest="file", default="encrypted.txt",
                         help="the name of the file from which the content is read")
     parser.add_argument("-s", "--suppress", dest="suppress", action="store_true", default=False,

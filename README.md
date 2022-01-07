@@ -59,7 +59,7 @@ optional arguments:
   -l LETTERS, --letters LETTERS
                         number of tested letters per key
   -r SEQUENCES, --sequences SEQUENCES
-                        The length of repeated sequences
+                        the length of repeated sequences
   -f FILE, --file FILE  the name of the file from which the content is read
   -s, --suppress        run in silent mode, suppress stdout
 ```
